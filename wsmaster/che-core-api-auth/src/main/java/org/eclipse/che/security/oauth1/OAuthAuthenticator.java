@@ -280,33 +280,13 @@ public abstract class OAuthAuthenticator {
         oauthParameters.computeNonce();
         oauthParameters.computeTimestamp();
 
-        final GenericUrl genericRequestUrl = new GenericUrl(requestUrl);
-        genericRequestUrl.putAll(getRequestParameters(requestUrl));
-
         try {
-            oauthParameters.computeSignature(requestMethod, genericRequestUrl);
+            oauthParameters.computeSignature(requestMethod, new GenericUrl(requestUrl));
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
         }
 
         return oauthParameters.getAuthorizationHeader();
-    }
-
-    private Map<String, String> getRequestParameters(String requestUrl) {
-        Map<String, String> params = new HashMap<>();
-        if (!requestUrl.contains("?")) {
-            return params;
-        }
-        String requestParams = requestUrl.substring(requestUrl.indexOf("?"));
-        if (!isNullOrEmpty(requestParams)) {
-            for (String pair : requestParams.split("&")) {
-                if (!pair.isEmpty()) {
-                    String[] split = pair.split("=");
-                    params.put(split[0], split[1]);
-                }
-            }
-        }
-        return params;
     }
 
     private String getUserFromStateParameter(final String state) {
